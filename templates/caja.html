@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Caja{% endblock %}
+{% block h1 %}Caja{% endblock %}
+{% block content %}
+{% if not sc %}
+<div class="card" style="max-width:440px">
+  <h2>Abrir caja</h2>
+  <p class="muted" style="margin-bottom:14px">Ingresa el monto inicial en efectivo para comenzar el turno.</p>
+  <form method="post" action="{{url_for('caja_abrir')}}">
+    <label>Monto inicial</label><input type="number" name="monto_inicial" step="1" value="0">
+    <button class="btn ok" style="margin-top:16px">Abrir caja</button>
+  </form>
+</div>
+{% else %}
+<div class="grid grid-4" style="margin-bottom:18px">
+  <div class="stat"><div class="label">Monto inicial</div><div class="value">{{sc.monto_inicial|clp}}</div></div>
+  <div class="stat"><div class="label">Ingresos (ventas+abonos)</div><div class="value ok">{{resumen.ingresos|clp}}</div></div>
+  <div class="stat"><div class="label">Egresos</div><div class="value danger">{{resumen.egresos|clp}}</div></div>
+  <div class="stat"><div class="label">Esperado en caja</div><div class="value">{{resumen.esperado|clp}}</div></div>
+</div>
+<div class="grid" style="grid-template-columns:1.4fr 1fr;gap:18px">
+  <div class="card" style="padding:0;overflow:hidden">
+    <div style="padding:16px 20px"><h2 style="margin:0">Movimientos del turno</h2>
+      <span class="muted">Abierta {{sc.abierta.strftime('%d/%m %H:%M')}} por {{sc.usuario.nombre}}</span></div>
+    <table>
+    <thead><tr><th>Hora</th><th>Tipo</th><th>Descripción</th><th class="right">Monto</th></tr></thead>
+    <tbody>
+    {% for m in resumen.movs|reverse %}
+    <tr><td class="muted">{{m.fecha.strftime('%H:%M')}}</td>
+      <td><span class="pill {{'efectivo' if m.tipo in ['venta','abono','ingreso'] else 'fiado'}}">{{m.tipo}}</span></td>
+      <td>{{m.descripcion or '—'}}</td>
+      <td class="right" style="color:{{'var(--ok)' if m.tipo!='egreso' else 'var(--danger)'}}">
+        {{'-' if m.tipo=='egreso'}}{{m.monto|clp}}</td></tr>
+    {% else %}<tr><td colspan="4" class="center muted" style="padding:20px">Sin movimientos</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  <div>
+    <div class="card">
+      <h2>Movimiento manual</h2>
+      <form method="post" action="{{url_for('caja_movimiento')}}">
+        <label>Tipo</label>
+        <select name="tipo"><option value="ingreso">Ingreso (entra dinero)</option>
+          <option value="egreso">Egreso (sale dinero)</option></select>
+        <label>Monto</label><input type="number" name="monto" step="1" required>
+        <label>Descripción</label><input name="descripcion" placeholder="Ej: pago a proveedor, retiro...">
+        <button class="btn" style="margin-top:14px">Registrar</button>
+      </form>
+    </div>
+    <div class="card">
+      <h2>Cerrar caja</h2>
+      <form method="post" action="{{url_for('caja_cerrar')}}" onsubmit="return confirm('¿Cerrar la caja?')">
+        <label>Conteo físico (efectivo real)</label>
+        <input type="number" name="monto_final_real" step="1" value="{{resumen.esperado|int}}">
+        <p class="muted" style="font-size:12px;margin-top:8px">Esperado: {{resumen.esperado|clp}}</p>
+        <button class="btn danger" style="margin-top:12px">Cerrar caja</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if historial %}
+<div class="card" style="padding:0;overflow:hidden;margin-top:18px">
+  <div style="padding:16px 20px"><h2 style="margin:0">Cierres anteriores</h2></div>
+  <table>
+  <thead><tr><th>Apertura</th><th>Cierre</th><th>Cajero</th><th class="right">Inicial</th>
+  <th class="right">Conteo final</th></tr></thead>
+  <tbody>
+  {% for s in historial %}
+  <tr><td class="muted">{{s.abierta.strftime('%d/%m %H:%M')}}</td>
+    <td class="muted">{{s.cerrada.strftime('%d/%m %H:%M') if s.cerrada}}</td>
+    <td>{{s.usuario.nombre if s.usuario else '—'}}</td>
+    <td class="right">{{s.monto_inicial|clp}}</td>
+    <td class="right">{{s.monto_final_real|clp}}</td></tr>
+  {% endfor %}
+  </tbody></table>
+</div>
+{% endif %}
+{% endblock %}

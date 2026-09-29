@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block h1 %}{% endblock %}
+
+{% block head %}
+<style>
+.stat-card {
+  background:#fff; border:1px solid #e2e8f0; border-radius:14px;
+  padding:18px 20px; box-shadow:0 1px 3px rgba(0,0,0,.04);
+  display:flex; align-items:flex-start; gap:14px;
+}
+.stat-icon {
+  width:46px; height:46px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.stat-label { font-size:12px; color:#64748b; font-weight:500; margin-bottom:5px; }
+.stat-val   { font-size:22px; font-weight:800; color:#1e293b; line-height:1; }
+.stat-sub   { font-size:12px; color:#94a3b8; margin-top:5px; }
+.stat-sub.up { color:#16a34a; font-weight:600; }
+
+.prog-bar  { height:6px; background:#f1f5f9; border-radius:99px; margin-top:6px; }
+.prog-fill { height:100%; border-radius:99px; background:#22c55e; }
+
+.quick-btn {
+  display:flex; flex-direction:column; align-items:center; gap:7px;
+  padding:13px 8px; background:#f8fafc; border:1px solid #e2e8f0;
+  border-radius:12px; cursor:pointer; transition:all .12s;
+  text-decoration:none; color:#334155; font-size:11px; font-weight:600; text-align:center; line-height:1.3;
+}
+.quick-btn:hover { background:#f0fdf4; border-color:#bbf7d0; }
+.q-icon {
+  width:36px; height:36px; border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.notif-row { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid #f1f5f9; }
+.notif-row:last-child { border-bottom:none; padding-bottom:0; }
+.notif-dot { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+@media(max-width:1200px){
+  .dash-charts { grid-template-columns:1fr 1fr !important; }
+  .dash-bottom { grid-template-columns:1fr 1fr !important; }
+  .dash-stats  { grid-template-columns:repeat(3,1fr) !important; }
+}
+@media(max-width:800px){
+  .dash-charts,.dash-bottom,.dash-stats { grid-template-columns:1fr !important; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Greeting -->
+<div style="margin-bottom:22px">
+  <div style="font-size:24px;font-weight:800;color:#1e293b">¡Hola, {{user.nombre.split()[0]}}! 👋</div>
+  <div style="color:#64748b;font-size:14px;margin-top:3px">Así van las ventas y operaciones de tu minimarket.</div>
+</div>
+
+<!-- Stat cards -->
+<div class="dash-stats" style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px">
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#dcfce7">
+      <svg width="22" height="22" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z"/></svg>
+    </div>
+    <div>
+      <div class="stat-label">Ventas del día</div>
+      <div class="stat-val">{{total_hoy|clp}}</div>
+      <div class="stat-sub up">{{n_ventas}} ticket{{'s' if n_ventas != 1 else ''}}</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#dbeafe">
+      <svg width="22" height="22" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-IDENTIFICADOR-DEMO.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z"/></svg>
+    </div>
+    <div>
+      <div class="stat-label">Tickets</div>
+      <div class="stat-val">{{n_ventas}}</div>
+      <div class="stat-sub">transacciones hoy</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#f3e8ff">
+      <svg width="22" height="22" fill="none" stroke="#9333ea" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-IDENTIFICADOR-DEMO.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+    </div>
+    <div>
+      <div class="stat-label">Unidades vendidas</div>
+      <div class="stat-val">{{productos_vendidos}}</div>
+      <div class="stat-sub">ítems hoy</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#ffedd5">
+      <svg width="22" height="22" fill="none" stroke="#ea580c" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+    </div>
+    <div>
+      <div class="stat-label">Deuda fiados</div>
+      <div class="stat-val" style="font-size:18px">{{deuda_total|clp}}</div>
+      <div class="stat-sub">pendiente cobro</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon" style="background:#ccfbf1">
+      <svg width="22" height="22" fill="none" stroke="#0d9488" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6L9 12.75l4.286-4.286a11.948 11.948 0 014.306 6.43l.776 2.898m0 0l3.182-5.511m-3.182 5.51l-5.511-3.181"/></svg>
+    </div>
+    <div>
+      <div class="stat-label">Utilidad del día</div>
+      <div class="stat-val">{{util_hoy|clp}}</div>
+      <div class="stat-sub up">ganancia neta</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Charts + right panel -->
+<div class="dash-charts" style="display:grid;grid-template-columns:1fr 1fr 280px;gap:16px;margin-bottom:16px">
+
+  <!-- Gráfico de línea -->
+  <div class="card" style="margin-bottom:0">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <h2 style="margin-bottom:0">Ventas</h2>
+      <span style="font-size:11px;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:4px 10px;font-weight:500">Últimos 7 días</span>
+    </div>
+    <canvas id="chartLinea" height="150"></canvas>
+  </div>
+
+  <!-- Dona por categoría -->
+  <div class="card" style="margin-bottom:0">
+    <h2>Ventas por categoría</h2>
+    {% if cat_ventas %}
+    <div style="display:flex;align-items:center;gap:20px">
+      <div style="flex-shrink:0"><canvas id="chartDona" width="140" height="140"></canvas></div>
+      <div style="flex:1;min-width:0">
+        {% set colores = ['#22c55e','#3b82f6','#a855f7','#f97316','#94a3b8'] %}
+        {% for c in cat_ventas %}
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+          <div style="display:flex;align-items:center;gap:7px;min-width:0">
+            <div style="width:9px;height:9px;border-radius:50%;background:{{colores[loop.index0]}};flex-shrink:0"></div>
+            <span style="font-size:13px;color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{c[0]}}</span>
+          </div>
+          <span style="font-size:12px;font-weight:700;color:#64748b;margin-left:8px;flex-shrink:0">{{((c[1]/cat_total)*100)|round(0)|int}}%</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:40px 0;color:#94a3b8;font-size:13px">Sin ventas en los últimos 7 días</div>
+    {% endif %}
+  </div>
+
+  <!-- Panel derecho -->
+  <div style="display:flex;flex-direction:column;gap:14px">
+
+    <!-- Accesos rápidos -->
+    <div class="card" style="margin-bottom:0;padding:18px">
+      <h2 style="font-size:14px;margin-bottom:12px">Accesos rápidos</h2>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px">
+        <a href="{{url_for('pos')}}" class="quick-btn">
+          <div class="q-icon" style="background:#dcfce7"><svg width="17" height="17" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg></div>
+          Nueva venta
+        </a>
+        <a href="{{url_for('producto_form')}}" class="quick-btn">
+          <div class="q-icon" style="background:#dbeafe"><svg width="17" height="17" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg></div>
+          Producto
+        </a>
+        <a href="{{url_for('facturas')}}" class="quick-btn">
+          <div class="q-icon" style="background:#f3e8ff"><svg width="17" height="17" fill="none" stroke="#9333ea" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg></div>
+          Factura
+        </a>
+        <a href="{{url_for('caja')}}" class="quick-btn">
+          <div class="q-icon" style="background:#ccfbf1"><svg width="17" height="17" fill="none" stroke="#0d9488" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+          Caja
+        </a>
+        <a href="{{url_for('reportes')}}" class="quick-btn">
+          <div class="q-icon" style="background:#fff7ed"><svg width="17" height="17" fill="none" stroke="#ea580c" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg></div>
+          Reportes
+        </a>
+        <a href="{{url_for('fiados')}}" class="quick-btn">
+          <div class="q-icon" style="background:#fdf4ff"><svg width="17" height="17" fill="none" stroke="#a855f7" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg></div>
+          Fiados
+        </a>
+      </div>
+    </div>
+
+    <!-- Alerta stock bajo -->
+    {% if bajo_stock > 0 %}
+    <a href="{{url_for('inventario')}}" style="text-decoration:none;display:block;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <svg width="18" height="18" fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#dc2626">{{bajo_stock}} producto{{'' if bajo_stock==1 else 's'}} con stock bajo</div>
+          <div style="font-size:11px;color:#ef4444;margin-top:1px">Toca para revisar inventario →</div>
+        </div>
+      </div>
+    </a>
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- Bottom grid -->
+<div class="dash-bottom" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+
+  <!-- Más vendidos -->
+  <div class="card" style="margin-bottom:0">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 style="margin-bottom:0">Más vendidos</h2>
+      <a href="{{url_for('ventas')}}" style="font-size:12px;color:#16a34a;font-weight:600">Ver todos</a>
+    </div>
+    {% if top %}
+      {% for t in top %}
+      <div style="margin-bottom:13px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px">
+          <span style="font-size:13px;color:#334155;font-weight:500">{{t[0][:28]}}</span>
+          <span style="font-size:12px;color:#64748b;font-weight:600;flex-shrink:0;margin-left:8px">{{t[1]|round(0)|int}} un.</span>
+        </div>
+        <div class="prog-bar">
+          <div class="prog-fill" style="width:{{((t[1]/top_max)*100)|round(0)|int}}%"></div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="text-align:center;padding:24px 0;color:#94a3b8;font-size:13px">Sin ventas en los últimos 7 días</div>
+    {% endif %}
+  </div>
+
+  <!-- Inventario con stock bajo -->
+  <div class="card" style="margin-bottom:0">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 style="margin-bottom:0">Inventario bajo</h2>
+      <a href="{{url_for('inventario')}}" style="font-size:12px;color:#16a34a;font-weight:600">Ver todos</a>
+    </div>
+    {% if bajo_stock_lista %}
+    <table>
+      <thead><tr><th>Producto</th><th class="right">Stock</th></tr></thead>
+      <tbody>
+      {% for p in bajo_stock_lista %}
+      <tr>
+        <td style="font-size:13px;font-weight:500">{{p.nombre[:24]}}</td>
+        <td class="right">
+          <span style="background:#fef2f2;color:#dc2626;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700">
+            {{p.stock|round(0)|int}} {{p.unidad}}
+          </span>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div style="text-align:center;padding:30px 0;color:#16a34a;font-size:13px;font-weight:500">
+      <div style="font-size:24px;margin-bottom:6px">✓</div>
+      Todo el inventario en buen estado
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Facturas recientes -->
+  <div class="card" style="margin-bottom:0">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 style="margin-bottom:0">Facturas recientes</h2>
+      <a href="{{url_for('facturas')}}" style="font-size:12px;color:#16a34a;font-weight:600">Ver todas</a>
+    </div>
+    {% if facturas_recientes %}
+      {% for f in facturas_recientes %}
+      <div style="padding:10px 0;border-bottom:1px solid #f1f5f9{%if loop.last%};border-bottom:none{%endif%}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div style="min-width:0">
+            <div style="font-size:13px;font-weight:600;color:#1e293b;display:flex;align-items:center;gap:6px">
+              F#{{f.folio or '—'}}
+              {% if not f.procesada %}
+              <span style="background:#fffbeb;color:#92400e;font-size:10px;padding:1px 6px;border-radius:10px">Pendiente</span>
+              {% else %}
+              <span style="background:#ecfdf5;color:#065f46;font-size:10px;padding:1px 6px;border-radius:10px">Aplicada</span>
+              {% endif %}
+            </div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+              {{f.proveedor.nombre[:22] if f.proveedor else 'Sin proveedor'}}
+            </div>
+          </div>
+          <span style="font-size:13px;font-weight:700;color:#1e293b;flex-shrink:0;margin-left:8px">{{f.total|int|clp}}</span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div style="text-align:center;padding:30px 0;color:#94a3b8;font-size:13px">Sin facturas cargadas</div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+// Gráfico de línea
+const serie = {{ serie|tojson }};
+new Chart(document.getElementById('chartLinea'), {
+  type: 'line',
+  data: {
+    labels: serie.map(x => x.dia),
+    datasets: [{
+      data: serie.map(x => x.total),
+      borderColor: '#22c55e',
+      backgroundColor: 'rgba(34,197,94,.08)',
+      borderWidth: 2.5, fill: true, tension: 0.4,
+      pointBackgroundColor: '#22c55e', pointRadius: 4, pointHoverRadius: 6,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ' $' + ctx.raw.toLocaleString('es-CL') } }
+    },
+    scales: {
+      y: { ticks: { color: '#94a3b8', callback: v => '$' + v.toLocaleString('es-CL') }, grid: { color: '#f1f5f9' } },
+      x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+    }
+  }
+});
+
+// Dona
+{% if cat_ventas %}
+const catLabels = [{% for c in cat_ventas %}"{{c[0]}}"{% if not loop.last %},{% endif %}{% endfor %}];
+const catData   = [{% for c in cat_ventas %}{{c[1]|round(2)}}{% if not loop.last %},{% endif %}{% endfor %}];
+new Chart(document.getElementById('chartDona'), {
+  type: 'doughnut',
+  data: {
+    labels: catLabels,
+    datasets: [{ data: catData, backgroundColor: ['#22c55e','#3b82f6','#a855f7','#f97316','#94a3b8'], borderWidth: 0, hoverOffset: 4 }]
+  },
+  options: { cutout: '65%', plugins: { legend: { display: false } } }
+});
+{% endif %}
+</script>
+{% endblock %}

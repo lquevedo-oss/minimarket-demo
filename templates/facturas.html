@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Facturas{% endblock %}
+{% block h1 %}Facturas / Carga masiva{% endblock %}
+{% block content %}
+<div class="card">
+  <h2>📤 Subir facturas SII (PDF)</h2>
+  <p class="muted" style="margin-bottom:14px">Sube uno o varios PDF de facturas electrónicas. El sistema lee el
+    documento (XML embebido o texto), extrae los productos y te deja revisar antes de actualizar el inventario.</p>
+  <form method="post" action="{{url_for('factura_subir')}}" enctype="multipart/form-data">
+    <input type="file" name="pdf" accept="application/pdf" multiple required>
+    <button class="btn" style="margin-top:14px">Procesar facturas</button>
+  </form>
+</div>
+<div class="card" style="padding:0;overflow:hidden">
+<table>
+<thead><tr><th>Folio</th><th>Proveedor</th><th>Fecha</th><th class="right">Neto</th>
+<th class="right">Total</th><th>Estado</th><th></th></tr></thead>
+<tbody>
+{% for f in facturas %}
+<tr>
+  <td><strong>{{f.folio or '—'}}</strong></td>
+  <td>{{f.proveedor.nombre if f.proveedor else '—'}}</td>
+  <td class="muted">{{f.fecha_emision or f.cargada.strftime('%d/%m/%Y')}}</td>
+  <td class="right">{{f.neto|clp}}</td>
+  <td class="right">{{f.total|clp}}</td>
+  <td><span class="pill {{'ok' if f.procesada else 'pend'}}">{{'Aplicada' if f.procesada else 'Pendiente'}}</span></td>
+  <td class="right">
+    {% if not f.procesada %}<a href="{{url_for('factura_revisar',fid=f.id)}}" class="btn sm">Revisar</a>{% endif %}
+    {% if f.archivo %}<a href="{{url_for('ver_upload',fname=f.archivo)}}" target="_blank" class="btn sec sm">PDF</a>{% endif %}
+  </td>
+</tr>
+{% else %}<tr><td colspan="7" class="center muted" style="padding:30px">Sin facturas cargadas</td></tr>{% endfor %}
+</tbody></table>
+</div>
+{% endblock %}

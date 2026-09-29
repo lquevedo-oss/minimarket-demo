@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{c.nombre}}{% endblock %}
+{% block h1 %}{{c.nombre}}{% endblock %}
+{% block content %}
+<div class="grid" style="grid-template-columns:1.5fr 1fr;gap:18px">
+  <div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><span class="muted">Teléfono:</span> {{c.telefono or '—'}}
+          {% if c.nota %}<br><span class="muted">{{c.nota}}</span>{% endif %}</div>
+        <div style="text-align:right"><div class="muted">Deuda actual</div>
+          <div style="font-size:26px;font-weight:700;color:{{'var(--warn)' if c.deuda>0 else 'var(--ok)'}}">{{c.deuda|clp}}</div></div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:16px 20px"><h2 style="margin:0">Compras al fiado</h2></div>
+      <table>
+      <thead><tr><th>Fecha</th><th class="right">Monto</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+      {% for v in ventas %}
+      <tr><td class="muted">{{v.fecha.strftime('%d/%m/%Y %H:%M')}}</td>
+        <td class="right">{{v.total|clp}}</td>
+        <td><span class="pill {{'ok' if v.pagado else 'pend'}}">{{'Pagada' if v.pagado else 'Pendiente'}}</span></td>
+        <td class="right"><a href="{{url_for('venta_detalle',vid=v.id)}}" class="btn sec sm">Ver</a></td></tr>
+      {% else %}<tr><td colspan="4" class="center muted" style="padding:20px">Sin compras al fiado</td></tr>{% endfor %}
+      </tbody></table>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:16px 20px"><h2 style="margin:0">Abonos</h2></div>
+      <table>
+      <thead><tr><th>Fecha</th><th class="right">Monto</th><th>Nota</th></tr></thead>
+      <tbody>
+      {% for a in abonos %}
+      <tr><td class="muted">{{a.fecha.strftime('%d/%m/%Y %H:%M')}}</td>
+        <td class="right" style="color:var(--ok)">{{a.monto|clp}}</td><td class="muted">{{a.nota or '—'}}</td></tr>
+      {% else %}<tr><td colspan="3" class="center muted" style="padding:20px">Sin abonos</td></tr>{% endfor %}
+      </tbody></table>
+    </div>
+  </div>
+  <div class="card" style="align-self:start">
+    <h2>Registrar abono</h2>
+    <form method="post" action="{{url_for('cliente_abonar',cid=c.id)}}">
+      <label>Monto *</label><input type="number" name="monto" step="1" required>
+      <label>Nota</label><input name="nota">
+      <button class="btn ok" style="margin-top:16px;width:100%;justify-content:center">Registrar abono</button>
+    </form>
+    <a href="{{url_for('fiados')}}" class="btn sec" style="margin-top:12px">← Volver</a>
+  </div>
+</div>
+{% endblock %}

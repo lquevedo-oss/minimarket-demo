@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Categorías{% endblock %}
+{% block h1 %}Categorías{% endblock %}
+{% block content %}
+<div class="grid" style="grid-template-columns:1.5fr 1fr;gap:18px">
+  <div class="card" style="padding:0;overflow:hidden">
+    <table><thead><tr><th>Categoría</th></tr></thead><tbody>
+    {% for c in cats %}<tr><td>{{c.nombre}}</td></tr>
+    {% else %}<tr><td class="muted center" style="padding:20px">Sin categorías</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  <div class="card" style="align-self:start">
+    <h2>Nueva categoría</h2>
+    <form method="post"><label>Nombre</label><input name="nombre" required>
+      <button class="btn" style="margin-top:14px">Agregar</button></form>
+  </div>
+</div>
+{% endblock %}

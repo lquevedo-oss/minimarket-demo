@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Fiados{% endblock %}
+{% block h1 %}Fiados{% endblock %}
+{% block content %}
+<div class="grid grid-2">
+  <div class="card">
+    <h2>Clientes con deuda</h2>
+    <table>
+    <thead><tr><th>Cliente</th><th>Teléfono</th><th class="right">Deuda</th><th></th></tr></thead>
+    <tbody>
+    {% for c in clientes %}
+    <tr>
+      <td><strong>{{c.nombre}}</strong></td>
+      <td class="muted">{{c.telefono or '—'}}</td>
+      <td class="right"><strong style="color:{{'var(--warn)' if c.deuda>0 else 'var(--muted)'}}">{{c.deuda|clp}}</strong></td>
+      <td class="right"><a href="{{url_for('cliente_detalle',cid=c.id)}}" class="btn sec sm">Ver</a></td>
+    </tr>
+    {% else %}<tr><td colspan="4" class="center muted" style="padding:20px">Sin clientes</td></tr>{% endfor %}
+    </tbody></table>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);
+      display:flex;justify-content:space-between;font-weight:700">
+      <span>Total por cobrar</span><span style="color:var(--warn)">{{total|clp}}</span></div>
+  </div>
+  <div class="card" style="align-self:start">
+    <h2>Nuevo cliente</h2>
+    <form method="post" action="{{url_for('cliente_nuevo')}}">
+      <label>Nombre *</label><input name="nombre" required>
+      <label>Teléfono</label><input name="telefono">
+      <label>Nota</label><input name="nota">
+      <button class="btn" style="margin-top:16px">Agregar cliente</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

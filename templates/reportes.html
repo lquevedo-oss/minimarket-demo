@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Reportes{% endblock %}
+{% block h1 %}Reportes{% endblock %}
+{% block content %}
+<div class="card">
+  <form method="get" class="row" style="align-items:end">
+    <div><label>Desde</label><input type="date" name="desde" value="{{desde}}"></div>
+    <div><label>Hasta</label><input type="date" name="hasta" value="{{hasta}}"></div>
+    <div style="flex:0"><button class="btn">Generar</button></div>
+  </form>
+</div>
+<div class="grid grid-4" style="margin-bottom:18px">
+  <div class="stat"><div class="label">Ventas totales</div><div class="value ok">{{total|clp}}</div></div>
+  <div class="stat"><div class="label">Costo de venta</div><div class="value">{{costo|clp}}</div></div>
+  <div class="stat"><div class="label">Utilidad bruta</div><div class="value ok">{{utilidad|clp}}</div></div>
+  <div class="stat"><div class="label">N° transacciones</div><div class="value">{{n}}</div></div>
+</div>
+<div class="grid grid-2">
+  <div class="card">
+    <h2>Ventas por método de pago</h2>
+    <table><tbody>
+    {% for m,v in por_metodo.items() %}
+    <tr><td><span class="pill {{m}}">{{m}}</span></td><td class="right"><strong>{{v|clp}}</strong></td></tr>
+    {% else %}<tr><td class="muted">Sin datos</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  <div class="card">
+    <h2>Productos más vendidos</h2>
+    <table>
+    <thead><tr><th>Producto</th><th class="right">Unid.</th><th class="right">Monto</th></tr></thead>
+    <tbody>
+    {% for t in top %}
+    <tr><td>{{t[0]}}</td><td class="right">{{t[1]|round(0)|int}}</td><td class="right">{{t[2]|clp}}</td></tr>
+    {% else %}<tr><td colspan="3" class="muted center" style="padding:20px">Sin datos</td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</div>
+{% endblock %}

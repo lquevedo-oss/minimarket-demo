@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Ventas{% endblock %}
+{% block h1 %}Ventas{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <form method="get"><input type="date" name="fecha" value="{{fecha}}" onchange="this.form.submit()"></form>
+  <div class="stat" style="padding:10px 18px"><span class="muted">Total del día:</span>
+    <strong style="font-size:18px;color:var(--ok)"> {{total|clp}}</strong></div>
+</div>
+<div class="card" style="padding:0;overflow:hidden">
+<table>
+<thead><tr><th>#</th><th>Hora</th><th>Vendedor</th><th>Método</th><th>Cliente</th>
+<th class="right">Utilidad</th><th class="right">Total</th><th></th></tr></thead>
+<tbody>
+{% for v in ventas %}
+<tr>
+  <td>{{v.id}}</td><td>{{v.fecha.strftime('%H:%M')}}</td>
+  <td class="muted">{{v.usuario.nombre if v.usuario else '—'}}</td>
+  <td><span class="pill {{v.metodo_pago}}">{{v.metodo_pago}}</span>
+    {% if v.metodo_pago=='fiado' and not v.pagado %}<span class="pill pend">pendiente</span>{% endif %}</td>
+  <td class="muted">{{v.cliente.nombre if v.cliente else '—'}}</td>
+  <td class="right muted">{{v.utilidad|clp}}</td>
+  <td class="right"><strong>{{v.total|clp}}</strong></td>
+  <td class="right"><a href="{{url_for('venta_detalle',vid=v.id)}}" class="btn sec sm">Ver</a></td>
+</tr>
+{% else %}<tr><td colspan="8" class="center muted" style="padding:30px">Sin ventas este día</td></tr>{% endfor %}
+</tbody></table>
+</div>
+{% endblock %}

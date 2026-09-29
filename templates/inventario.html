@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Inventario{% endblock %}
+{% block h1 %}Inventario{% endblock %}
+{% block content %}
+<div class="toolbar">
+  <form method="get">
+    <input name="q" value="{{q}}" placeholder="Buscar producto o código...">
+    <select name="cat" onchange="this.form.submit()">
+      <option value="">Todas las categorías</option>
+      {% for c in cats %}<option value="{{c.id}}" {{'selected' if cat==c.id|string}}>{{c.nombre}}</option>{% endfor %}
+    </select>
+    <button class="btn sec">Filtrar</button>
+  </form>
+  {% if user.rol=='admin' %}<a href="{{url_for('producto_form')}}" class="btn">+ Nuevo producto</a>{% endif %}
+</div>
+<div class="card" style="padding:0;overflow:hidden">
+<table>
+<thead><tr><th>Código</th><th>Producto</th><th>Categoría</th><th class="right">Costo</th>
+<th class="right">Precio</th><th class="right">Margen</th><th class="right">Stock</th>
+{% if user.rol=='admin' %}<th></th>{% endif %}</tr></thead>
+<tbody>
+{% for p in productos %}
+<tr>
+  <td class="muted">{{p.codigo or '—'}}</td>
+  <td><strong>{{p.nombre}}</strong></td>
+  <td class="muted">{{p.categoria.nombre if p.categoria else '—'}}</td>
+  <td class="right">{{p.costo|clp}}</td>
+  <td class="right">{{p.precio|clp}}</td>
+  <td class="right">{{p.margen}}%</td>
+  <td class="right">
+    <span class="pill {{'pend' if p.stock<=p.stock_min else 'ok'}}">{{p.stock|round(0)|int}} {{p.unidad}}</span>
+  </td>
+  {% if user.rol=='admin' %}
+  <td class="right">
+    <a href="{{url_for('producto_form',pid=p.id)}}" class="btn sec sm">Editar</a>
+    <form method="post" action="{{url_for('producto_eliminar',pid=p.id)}}" style="display:inline"
+      onsubmit="return confirm('¿Desactivar este producto?')">
+      <button class="btn danger sm">✕</button></form>
+  </td>{% endif %}
+</tr>
+{% else %}<tr><td colspan="8" class="center muted" style="padding:30px">Sin productos</td></tr>{% endfor %}
+</tbody></table>
+</div>
+{% endblock %}

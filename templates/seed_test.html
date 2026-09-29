@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Cargar datos de prueba{% endblock %}
+{% block h1 %}Datos de prueba{% endblock %}
+{% block content %}
+<div style="max-width:480px;margin:60px auto;text-align:center">
+  <div style="font-size:48px;margin-bottom:16px">🧪</div>
+  <h2 style="margin-bottom:8px">Carga masiva de productos de prueba</h2>
+  <p style="color:#64748b;margin-bottom:6px">
+    Esto insertará <strong>{{cantidad}} productos</strong> de prueba en la base de datos
+    (catálogo completamente ficticio).
+  </p>
+  <p style="color:#64748b;font-size:13px;margin-bottom:28px">
+    Actualmente hay <strong>{{total}}</strong> productos activos en el sistema.
+    Los duplicados serán ignorados automáticamente.
+  </p>
+  <form method="post">
+    <button class="btn ok" style="padding:13px 32px;font-size:15px;width:100%;justify-content:center">
+      Cargar productos de prueba
+    </button>
+  </form>
+  <a href="{{url_for('inventario')}}" class="btn sec" style="margin-top:12px;width:100%;justify-content:center">
+    Cancelar
+  </a>
+  <p style="color:#94a3b8;font-size:11px;margin-top:20px">
+    Esta ruta es temporal. Elimínala del código una vez que no la necesites.
+  </p>
+</div>
+{% endblock %}

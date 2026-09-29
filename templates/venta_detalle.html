@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Venta #{{v.id}}{% endblock %}
+{% block h1 %}Venta #{{v.id}}{% endblock %}
+{% block content %}
+<div class="card" style="max-width:600px">
+  <div class="row" style="margin-bottom:16px">
+    <div><span class="muted">Fecha:</span> {{v.fecha.strftime('%d/%m/%Y %H:%M')}}</div>
+    <div><span class="muted">Vendedor:</span> {{v.usuario.nombre if v.usuario else '—'}}</div>
+    <div><span class="pill {{v.metodo_pago}}">{{v.metodo_pago}}</span></div>
+  </div>
+  <table>
+  <thead><tr><th>Producto</th><th class="right">Cant.</th><th class="right">P. unit</th><th class="right">Subtotal</th></tr></thead>
+  <tbody>
+  {% for it in v.items %}
+  <tr><td>{{it.nombre}}</td><td class="right">{{it.cantidad|round(0)|int}}</td>
+    <td class="right">{{it.precio_unit|clp}}</td><td class="right">{{it.subtotal|clp}}</td></tr>
+  {% endfor %}
+  </tbody></table>
+  <div style="display:flex;justify-content:space-between;font-size:20px;font-weight:700;
+    margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+    <span>Total</span><span>{{v.total|clp}}</span></div>
+  <div style="display:flex;justify-content:space-between;margin-top:6px" class="muted">
+    <span>Utilidad</span><span>{{v.utilidad|clp}}</span></div>
+  <a href="{{url_for('ventas')}}" class="btn sec" style="margin-top:18px">← Volver</a>
+</div>
+{% endblock %}

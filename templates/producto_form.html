@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Producto{% endblock %}
+{% block h1 %}{{'Editar' if p else 'Nuevo'}} producto{% endblock %}
+{% block content %}
+<div class="card" style="max-width:620px">
+<form method="post">
+  <div class="row">
+    <div><label>Código / cód. barras</label><input name="codigo" value="{{p.codigo or '' if p else ''}}"></div>
+    <div><label>Unidad</label>
+      <select name="unidad">
+        {% for u in ['un','kg','lt','pack','caja'] %}
+        <option {{'selected' if p and p.unidad==u}}>{{u}}</option>{% endfor %}
+      </select></div>
+  </div>
+  <label>Nombre *</label><input name="nombre" value="{{p.nombre if p else ''}}" required>
+  <label>Categoría</label>
+  <select name="categoria_id">
+    <option value="">— Sin categoría —</option>
+    {% for c in cats %}<option value="{{c.id}}" {{'selected' if p and p.categoria_id==c.id}}>{{c.nombre}}</option>{% endfor %}
+  </select>
+  <div class="row">
+    <div><label>Costo neto</label><input type="number" name="costo" step="1" value="{{p.costo|int if p else 0}}"></div>
+    <div><label>Precio venta</label><input type="number" name="precio" step="1" value="{{p.precio|int if p else 0}}"></div>
+  </div>
+  <div class="row">
+    <div><label>Stock actual</label><input type="number" name="stock" step="1" value="{{p.stock|int if p else 0}}"></div>
+    <div><label>Stock mínimo (alerta)</label><input type="number" name="stock_min" step="1" value="{{p.stock_min|int if p else 5}}"></div>
+  </div>
+  <div style="margin-top:20px;display:flex;gap:10px">
+    <button class="btn">Guardar</button>
+    <a href="{{url_for('inventario')}}" class="btn sec">Cancelar</a>
+  </div>
+</form>
+</div>
+{% endblock %}

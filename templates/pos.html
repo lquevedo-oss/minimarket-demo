@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Punto de venta{% endblock %}
+{% block h1 %}Punto de venta{% endblock %}
+{% block content %}
+<div class="grid" style="grid-template-columns:1.3fr 1fr;gap:18px">
+  <div class="card">
+    <input id="buscar" placeholder="Buscar producto por nombre o código de barras..." autofocus>
+    <div id="resultados" style="margin-top:14px;max-height:480px;overflow-y:auto"></div>
+  </div>
+  <div class="card">
+    <h2>Carrito</h2>
+    <div id="carrito" style="min-height:200px;max-height:340px;overflow-y:auto"></div>
+    <div style="border-top:1px solid var(--border);margin-top:14px;padding-top:14px">
+      <div style="display:flex;justify-content:space-between;font-size:22px;font-weight:700;margin-bottom:14px">
+        <span>Total</span><span id="total">$0</span></div>
+      <label>Método de pago</label>
+      <select id="metodo" onchange="toggleCliente()">
+        <option value="efectivo">Efectivo</option>
+        <option value="debito">Débito</option>
+        <option value="credito">Crédito</option>
+        <option value="transferencia">Transferencia</option>
+        <option value="fiado">Fiado</option>
+      </select>
+      <div id="clienteBox" style="display:none">
+        <label>Cliente</label>
+        <select id="cliente">
+          <option value="">— Selecciona —</option>
+          {% for c in clientes %}<option value="{{c.id}}">{{c.nombre}}</option>{% endfor %}
+        </select>
+      </div>
+      <button class="btn ok" style="width:100%;justify-content:center;margin-top:16px;font-size:16px;padding:13px"
+        onclick="cobrar()">💰 Cobrar</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+let carrito=[];
+const buscar=document.getElementById('buscar');
+let timer;
+buscar.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(doBuscar,250)});
+buscar.addEventListener('keydown',e=>{ // enter = agregar primer resultado (lector cód barras)
+  if(e.key==='Enter'){e.preventDefault();const f=document.querySelector('.res-item');if(f)f.click()}});
+
+async function doBuscar(){
+  const q=buscar.value.trim();if(!q){document.getElementById('resultados').innerHTML='';return}
+  const r=await fetch('/api/buscar_producto?q='+encodeURIComponent(q));
+  const data=await r.json();
+  document.getElementById('resultados').innerHTML=data.map(p=>`
+    <div class="res-item" onclick='add(${JSON.stringify(p)})' style="display:flex;justify-content:space-between;
+      padding:12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;cursor:pointer">
+      <div><strong>${p.nombre}</strong><br><span class="muted" style="font-size:12px">${p.codigo||'s/cód'} · stock: ${p.stock}</span></div>
+      <div style="text-align:right;font-weight:700">$${p.precio.toLocaleString('es-CL')}</div>
+    </div>`).join('')||'<p class="muted">Sin resultados</p>';
+}
+function add(p){
+  const ex=carrito.find(i=>i.id===p.id);
+  if(ex){if(ex.cantidad<p.stock)ex.cantidad++}else{carrito.push({...p,cantidad:1})}
+  buscar.value='';document.getElementById('resultados').innerHTML='';buscar.focus();render();
+}
+function render(){
+  const c=document.getElementById('carrito');
+  if(!carrito.length){c.innerHTML='<p class="muted center" style="padding:40px 0">Carrito vacío</p>';
+    document.getElementById('total').textContent='$0';return}
+  c.innerHTML=carrito.map((i,ix)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1"><strong>${i.nombre}</strong><br>
+        <span class="muted" style="font-size:12px">$${i.precio.toLocaleString('es-CL')} c/u</span></div>
+      <input type="number" value="${i.cantidad}" min="1" max="${i.stock}" style="width:64px"
+        onchange="setQty(${ix},this.value)">
+      <div style="width:80px;text-align:right;font-weight:600">$${(i.precio*i.cantidad).toLocaleString('es-CL')}</div>
+      <button class="btn danger sm" onclick="del(${ix})">✕</button>
+    </div>`).join('');
+  const t=carrito.reduce((s,i)=>s+i.precio*i.cantidad,0);
+  document.getElementById('total').textContent='$'+t.toLocaleString('es-CL');
+}
+function setQty(ix,v){carrito[ix].cantidad=Math.max(1,parseInt(v)||1);render()}
+function del(ix){carrito.splice(ix,1);render()}
+function toggleCliente(){document.getElementById('clienteBox').style.display=
+  document.getElementById('metodo').value==='fiado'?'block':'none'}
+async function cobrar(){
+  if(!carrito.length)return alert('Carrito vacío');
+  const metodo=document.getElementById('metodo').value;
+  const cliente_id=document.getElementById('cliente').value;
+  if(metodo==='fiado'&&!cliente_id)return alert('Selecciona un cliente para fiar');
+  const r=await fetch('/api/venta',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({items:carrito.map(i=>({id:i.id,cantidad:i.cantidad})),metodo,cliente_id})});
+  const d=await r.json();
+  if(d.ok){carrito=[];render();buscar.focus();
+    const n=document.createElement('div');n.className='flash ok';
+    n.textContent=`✓ Venta #${d.venta_id} registrada — $${d.total.toLocaleString('es-CL')}`;
+    document.querySelector('.main').insertBefore(n,document.querySelector('.grid'));
+    setTimeout(()=>n.remove(),3500);
+  }else alert(d.error);
+}
+render();
+</script>
+{% endblock %}
