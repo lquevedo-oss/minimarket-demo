@@ -6,6 +6,5 @@ __pycache__/
 instance/
 *.db
 *.sqlite*
-uploads/*
-!uploads/.gitkeep
+uploads/
 .venv/
